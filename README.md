@@ -1,1 +1,1 @@
-# AutoARIMA Forecaster in Darts
+# Darts AutoARIMA Forecaster
