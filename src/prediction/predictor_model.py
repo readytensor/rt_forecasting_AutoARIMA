@@ -24,11 +24,8 @@ class Forecaster:
 
     model_name = "AutoARIMA Forecaster"
 
-    def __init__(
-        self,
-        add_encoders: Optional[dict] = None,
-    ):
-        """Construct a new ARIMA Forecaster
+    def __init__(self, add_encoders: Optional[dict] = None, **autoarima_kwargs):
+        """Construct a new AutoARIMA Forecaster
 
         Args:
             add_encoders (Optional[dict]): A large number of future covariates can be automatically generated with add_encoders. This can be done by adding multiple pre-defined index encoders and/or custom user-made functions that will be used as index encoders. Additionally, a transformer such as Darts' Scaler can be added to transform the generated covariates. This happens all under one hood and only needs to be specified at model creation. Read SequentialEncoder to find out more about add_encoders. Default: None. An example showing some of add_encoders features:
@@ -44,6 +41,7 @@ class Forecaster:
                 'transformer': Scaler(),
                 'tz': 'CET'
             }
+            autoarima_kwargs: Keyword arguments for the pmdarima.AutoARIMA model
         """
         self._is_trained = False
         self.add_encoders = add_encoders
