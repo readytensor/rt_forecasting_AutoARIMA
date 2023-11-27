@@ -82,11 +82,12 @@ class Covariate(BaseModel):
 
 class SchemaModel(BaseModel):
     """
-    A schema validator for binary classification problems. Validates the
+    A schema validator for forecasting problems. Validates the
     problem category, version, and predictor fields of the input schema.
     """
 
     title: str
+    forecastLength: int
     description: str = None
     modelCategory: str
     schemaVersion: float

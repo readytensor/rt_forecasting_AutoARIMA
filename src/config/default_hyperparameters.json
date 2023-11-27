@@ -5,5 +5,6 @@
   "start_q": 2,
   "max_q": 5,
   "d": null ,
-  "max_d": 2
+  "max_d": 2,
+  "history_forecast_ratio": 20 
 }
