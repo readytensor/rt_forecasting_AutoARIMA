@@ -194,9 +194,12 @@ def train_predictor_model(
     Returns:
         'Forecaster': The Forecaster model
     """
-    history_forecast_ratio = hyperparameters["history_forecast_ratio"]
-    history_length = data_schema.forecast_length * history_forecast_ratio
-    history = history.iloc[-history_length:]
+    history_forecast_ratio = hyperparameters.get("history_forecast_ratio")
+    if history_forecast_ratio:
+        history_length = data_schema.forecast_length * history_forecast_ratio
+        history = history.iloc[-history_length:]
+        hyperparameters.pop("history_forecast_ratio")
+
     model = Forecaster(
         **hyperparameters,
     )
