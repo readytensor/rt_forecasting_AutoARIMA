@@ -49,7 +49,12 @@ class Forecaster:
         self.data_schema = None
         self.autoarima_kwargs = autoarima_kwargs
 
-    def fit(self, history: pd.DataFrame, data_schema: ForecastingSchema) -> None:
+    def fit(
+        self,
+        history: pd.DataFrame,
+        data_schema: ForecastingSchema,
+        history_length: int = None,
+    ) -> None:
         """Fit the Forecaster to the training data.
         A separate AutoARIMA model is fit to each series that is contained
         in the data.
@@ -57,6 +62,7 @@ class Forecaster:
         Args:
             history (pandas.DataFrame): The features of the training data.
             data_schema (ForecastingSchema): The schema of the training data.
+            history_length (int): The length of the series used for training.
         """
         np.random.seed(0)
         groups_by_ids = history.groupby(data_schema.id_col)
@@ -69,6 +75,8 @@ class Forecaster:
         self.models = {}
 
         for id, series in zip(all_ids, all_series):
+            if history_length:
+                series = series[-history_length:]
             model = self._fit_on_series(history=series, data_schema=data_schema)
             self.models[id] = model
 
@@ -194,16 +202,16 @@ def train_predictor_model(
     Returns:
         'Forecaster': The Forecaster model
     """
+    history_length = None
     history_forecast_ratio = hyperparameters.get("history_forecast_ratio")
     if history_forecast_ratio:
         history_length = data_schema.forecast_length * history_forecast_ratio
-        history = history.iloc[-history_length:]
         hyperparameters.pop("history_forecast_ratio")
 
     model = Forecaster(
         **hyperparameters,
     )
-    model.fit(history=history, data_schema=data_schema)
+    model.fit(history=history, data_schema=data_schema, history_length=history_length)
     return model
 
 
