@@ -87,13 +87,13 @@ class SchemaModel(BaseModel):
     """
 
     title: str
-    forecastLength: int
     description: str = None
     modelCategory: str
     schemaVersion: float
     inputDataFormat: str = None
     encoding: str = None
     frequency: Frequency
+    forecastLength: int
     idField: ID
     timeField: TimeField
     forecastTarget: ForecastTarget

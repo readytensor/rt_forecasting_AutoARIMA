@@ -75,6 +75,7 @@ def run_training(
         # use default hyperparameters to train model
         logger.info("Training forecaster...")
         default_hyperparameters = read_json_as_dict(default_hyperparameters_file_path)
+
         forecaster = train_predictor_model(
             history=validated_data,
             data_schema=data_schema,

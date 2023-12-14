@@ -24,10 +24,25 @@ class Forecaster:
 
     model_name = "AutoARIMA Forecaster"
 
-    def __init__(self, add_encoders: Optional[dict] = None, **autoarima_kwargs):
+    def __init__(
+        self,
+        data_schema: ForecastingSchema,
+        history_forecast_ratio: int = None,
+        add_encoders: Optional[dict] = None,
+        **autoarima_kwargs,
+    ):
         """Construct a new AutoARIMA Forecaster
 
         Args:
+
+            data_schema (ForecastingSchema):
+                The schema of the training data.
+
+            history_forecast_ratio (int):
+                Sets the history length depending on the forecast horizon.
+                For example, if the forecast horizon is 20 and the history_forecast_ratio is 10,
+                history length will be 20*10 = 200 samples.
+
             add_encoders (Optional[dict]): A large number of future covariates can be automatically generated with add_encoders. This can be done by adding multiple pre-defined index encoders and/or custom user-made functions that will be used as index encoders. Additionally, a transformer such as Darts' Scaler can be added to transform the generated covariates. This happens all under one hood and only needs to be specified at model creation. Read SequentialEncoder to find out more about add_encoders. Default: None. An example showing some of add_encoders features:
 
             def encode_year(idx):
@@ -43,17 +58,21 @@ class Forecaster:
             }
             autoarima_kwargs: Keyword arguments for the pmdarima.AutoARIMA model
         """
+        self.data_schema = data_schema
+        self.history_forecast_ratio = history_forecast_ratio
         self._is_trained = False
         self.add_encoders = add_encoders
         self.models = {}
-        self.data_schema = None
         self.autoarima_kwargs = autoarima_kwargs
+        self.history_length = None
+
+        if history_forecast_ratio:
+            self.history_length = data_schema.forecast_length * history_forecast_ratio
 
     def fit(
         self,
         history: pd.DataFrame,
         data_schema: ForecastingSchema,
-        history_length: int = None,
     ) -> None:
         """Fit the Forecaster to the training data.
         A separate AutoARIMA model is fit to each series that is contained
@@ -75,8 +94,8 @@ class Forecaster:
         self.models = {}
 
         for id, series in zip(all_ids, all_series):
-            if history_length:
-                series = series[-history_length:]
+            if self.history_length:
+                series = series[-self.history_length :]
             model = self._fit_on_series(history=series, data_schema=data_schema)
             self.models[id] = model
 
@@ -102,14 +121,16 @@ class Forecaster:
 
         return model
 
-    def predict(self, test_data: pd.DataFrame, prediction_col_name: str) -> np.ndarray:
+    def predict(
+        self, test_data: pd.DataFrame, prediction_col_name: str
+    ) -> pd.DataFrame:
         """Make the forecast of given length.
 
         Args:
             test_data (pd.DataFrame): Given test input for forecasting.
             prediction_col_name (str): Name to give to prediction column.
         Returns:
-            numpy.ndarray: The predicted class labels.
+            pd.DataFrame: The prediction dataframe.
         """
         if not self._is_trained:
             raise NotFittedError("Model is not fitted yet.")
@@ -202,16 +223,12 @@ def train_predictor_model(
     Returns:
         'Forecaster': The Forecaster model
     """
-    history_length = None
-    history_forecast_ratio = hyperparameters.get("history_forecast_ratio")
-    if history_forecast_ratio:
-        history_length = data_schema.forecast_length * history_forecast_ratio
-        hyperparameters.pop("history_forecast_ratio")
 
     model = Forecaster(
+        data_schema=data_schema,
         **hyperparameters,
     )
-    model.fit(history=history, data_schema=data_schema, history_length=history_length)
+    model.fit(history=history, data_schema=data_schema)
     return model
 
 
