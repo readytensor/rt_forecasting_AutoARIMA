@@ -1,5 +1,5 @@
 {
-  "history_forecast_ratio": null,
+  "history_forecast_ratio": 20,
   "add_encoders": null,
   "start_p": 10,
   "max_p": 15,

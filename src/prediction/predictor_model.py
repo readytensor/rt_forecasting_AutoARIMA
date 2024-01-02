@@ -110,11 +110,12 @@ class Forecaster:
         series = TimeSeries.from_dataframe(
             history, data_schema.time_col, data_schema.target
         )
-
         future_covariates = None
         if data_schema.future_covariates:
             future_covariates = TimeSeries.from_dataframe(
-                history, data_schema.time_col, data_schema.future_covariates
+                history,
+                data_schema.time_col,
+                data_schema.future_covariates,
             )
 
         model.fit(series, future_covariates=future_covariates)
@@ -158,17 +159,20 @@ class Forecaster:
     def _predict_on_series(self, key_and_future_df):
         """Make forecast on given individual series of data"""
         key, future_df = key_and_future_df
-        future_covariates = None
-        if self.data_schema.future_covariates:
-            future_covariates = TimeSeries.from_dataframe(
+        covariates = None
+        covariates_names = (
+            self.data_schema.future_covariates  # + self.data_schema.static_covariates
+        )
+        if covariates_names:
+            covariates = TimeSeries.from_dataframe(
                 future_df,
                 self.data_schema.time_col,
-                self.data_schema.future_covariates,
+                covariates_names,
             )
 
         if self.models.get(key) is not None:
             forecast = self.models[key].predict(
-                len(future_df), future_covariates=future_covariates
+                len(future_df), future_covariates=covariates
             )
             forecast_df = forecast.pd_dataframe()
             forecast = forecast_df[self.data_schema.target]
