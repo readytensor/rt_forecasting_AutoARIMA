@@ -111,11 +111,11 @@ class Forecaster:
             history, data_schema.time_col, data_schema.target
         )
         future_covariates = None
-        if data_schema.future_covariates:
+        if data_schema.future_covariates + data_schema.static_covariates:
             future_covariates = TimeSeries.from_dataframe(
                 history,
                 data_schema.time_col,
-                data_schema.future_covariates,
+                data_schema.future_covariates + data_schema.static_covariates,
             )
 
         model.fit(series, future_covariates=future_covariates)
@@ -161,7 +161,7 @@ class Forecaster:
         key, future_df = key_and_future_df
         covariates = None
         covariates_names = (
-            self.data_schema.future_covariates  # + self.data_schema.static_covariates
+            self.data_schema.future_covariates + self.data_schema.static_covariates
         )
         if covariates_names:
             covariates = TimeSeries.from_dataframe(
