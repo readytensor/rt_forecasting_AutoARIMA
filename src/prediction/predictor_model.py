@@ -81,7 +81,7 @@ class Forecaster:
         Args:
             history (pandas.DataFrame): The features of the training data.
             data_schema (ForecastingSchema): The schema of the training data.
-            history_length (int): The length of the series used for training.
+
         """
         np.random.seed(0)
         groups_by_ids = history.groupby(data_schema.id_col)
