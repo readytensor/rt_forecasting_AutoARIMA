@@ -2,7 +2,7 @@
   "history_forecast_ratio": 20,
   "add_encoders": null,
   "start_p": 0,
-  "max_p": 15,
+  "max_p": 10,
   "start_q": 0,
   "max_q": 5,
   "d": null ,
