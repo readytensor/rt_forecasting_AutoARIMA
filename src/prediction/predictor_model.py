@@ -106,7 +106,6 @@ class Forecaster:
     def _fit_on_series(self, history: pd.DataFrame, data_schema: ForecastingSchema):
         """Fit AutoARIMA model to given individual series of data"""
         model = AutoARIMA(add_encoders=self.add_encoders, **self.autoarima_kwargs)
-
         series = TimeSeries.from_dataframe(
             history, data_schema.time_col, data_schema.target
         )
