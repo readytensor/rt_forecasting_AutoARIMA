@@ -3,6 +3,7 @@ import warnings
 import joblib
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from typing import Optional
 from darts.models.forecasting.auto_arima import AutoARIMA
 from darts import TimeSeries
@@ -93,7 +94,9 @@ class Forecaster:
 
         self.models = {}
 
-        for id, series in zip(all_ids, all_series):
+        for id, series in tqdm(
+            zip(all_ids, all_series), total=len(all_ids), desc="Fitting models"
+        ):
             if self.history_length:
                 series = series[-self.history_length :]
             model = self._fit_on_series(history=series, data_schema=data_schema)
